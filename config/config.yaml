@@ -1,0 +1,41 @@
+# Runtime parameters — loaded by AgentRegistry, passed as Graph(config=...).
+# Separate from config/agent.yaml (the static manifest).
+
+max_retry: 3
+timeout_s: 30
+
+classification:
+  # An inquiry whose best category scores below this bar is filed as "other"
+  # and sent to the general desk rather than guessed into a department.
+  # Scoring: 0.50 baseline + 0.15 per keyword hit, capped at 0.95.
+  min_confidence: 0.6
+
+urgency:
+  # Multipliers applied to the routed department's sla_hours. A high-urgency
+  # inquiry gets half the normal deadline (floored at 1 hour); medium keeps it.
+  high_sla_factor: 0.5
+  medium_sla_factor: 1.0
+
+routing:
+  # Department table — one entry per intent category. Uncomment and replace
+  # with your own agency's structure; whatever you declare here fully replaces
+  # the built-in default table in src/nodes/route_to_department_node.py, and is
+  # validated against the same bounds a caller-supplied table is:
+  #
+  #   category key     [a-z0-9_]{1,32}      one of the seven intent categories
+  #   department       [a-z0-9_]{1,48}      rendered into the routing decision
+  #   sla_hours        integer 1..720       whole hours
+  #   escalation_path  [a-z0-9_]{1,48}      or null for "no standing escalation"
+  #   contact_key      [a-z0-9_]{1,48}      key into your own contact directory
+  #
+  # table:
+  #   permit_inquiry:
+  #     department: urban_planning_dept
+  #     sla_hours: 48
+  #     escalation_path: null
+  #     contact_key: urban_planning_contact
+  #   other:
+  #     department: general_inquiry_dept
+  #     sla_hours: 72
+  #     escalation_path: null
+  #     contact_key: general_inquiry_contact
